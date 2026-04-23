@@ -1,7 +1,7 @@
 package com.example.demo.authservice.controllers;
 
-import com.example.demo.authservice.Dtos.UserDTO;
-import com.example.demo.authservice.inputmodels.SignUpInputModel;
+import com.example.demo.authservice.Dtos.responses.UserResponse;
+import com.example.demo.authservice.Dtos.requests.SignUpInputModel;
 import com.example.demo.authservice.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,8 @@ public class Authcontroller {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> signUp(@RequestBody SignUpInputModel signUpInputModel){
-        UserDTO userDTO= userService.signup(signUpInputModel);
+    public ResponseEntity<UserResponse> signUp(@RequestBody SignUpInputModel signUpInputModel){
+        UserResponse userDTO= userService.signup(signUpInputModel);
         return ResponseEntity.ok(userDTO);
     }
 }

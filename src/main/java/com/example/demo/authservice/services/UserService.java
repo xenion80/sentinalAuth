@@ -1,11 +1,11 @@
 package com.example.demo.authservice.services;
 
-import com.example.demo.authservice.Dtos.UserDTO;
+import com.example.demo.authservice.Dtos.responses.UserResponse;
 import com.example.demo.authservice.Entities.RoleEntity;
 import com.example.demo.authservice.Entities.User;
 import com.example.demo.authservice.Entities.enums.Role;
 import com.example.demo.authservice.exceptions.IdentityAlreadyExistsException;
-import com.example.demo.authservice.inputmodels.SignUpInputModel;
+import com.example.demo.authservice.Dtos.requests.SignUpInputModel;
 import com.example.demo.authservice.repositories.RoleEntityRepository;
 import com.example.demo.authservice.repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,7 +26,7 @@ public class UserService {
     private final RoleEntityRepository roleEntityRepository;
 
     @Transactional
-    public UserDTO signup(SignUpInputModel signUpInputModel) {
+    public UserResponse signup(SignUpInputModel signUpInputModel) {
         Optional<User> user=userRepository.findByEmail(signUpInputModel.getEmail());
         if(user.isPresent()){
             throw new IdentityAlreadyExistsException("User with this email alreday exists"+signUpInputModel.getEmail());
@@ -34,16 +34,14 @@ public class UserService {
         RoleEntity userRole = roleEntityRepository.findByName(Role.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("USER role missing"));
 
-        User user1=new User();
-        user1.setEmail(signUpInputModel.getEmail());
-        user1.setName(signUpInputModel.getName());
+        User user1=modelMapper.map(signUpInputModel,User.class);
         user1.setPassword(passwordEncoder.encode(signUpInputModel.getPassword()));
         user1.setEnabled(true);
         user1.setRoles(Set.of(userRole));
 
         User saved = userRepository.save(user1);
 
-        return modelMapper.map(saved, UserDTO.class);
+        return modelMapper.map(saved, UserResponse.class);
 
 
 
