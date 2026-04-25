@@ -5,6 +5,9 @@ import com.example.demo.authservice.Dtos.responses.LoginResponse;
 import com.example.demo.authservice.Entities.RefreshToken;
 import com.example.demo.authservice.Entities.User;
 import com.example.demo.authservice.repositories.RefreshTokenRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +24,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtAuthService jwtAuthService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserService userService;
 
     public LoginResponse login(LoginRequest loginRequest) {
         Authentication authentication=authenticationManager.authenticate(
@@ -41,6 +45,42 @@ public class AuthService {
 
 
         return new LoginResponse(user.getId(),user.getName(),user.getEmail(),user.getRoles().stream().map(role->role.getName()).collect(Collectors.toSet()),accesstoken,refreshTokenvalue);
+
+
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken=null;
+        if(request.getCookies()!=null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if(refreshToken!=null){
+            RefreshToken token=refreshTokenRepository.findByToken(refreshToken).orElse(null);
+            if (token!=null){
+                token.setRevoked(true);
+                refreshTokenRepository.save(token);
+            }
+
+        }
+        Cookie cookie=new Cookie("refreshToken","");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+    }
+
+    public LoginResponse refreshToken(String refreshToken) {
+        Long userid= jwtAuthService.extractUserId(refreshToken);
+        User user=userService.getUserById(userid);
+        String accesstoken=jwtAuthService.generateRefreshToken(user);
+        return new LoginResponse(user.getId(),user.getName(),user.getEmail(),user.getRoles().stream().map(roleEntity -> roleEntity.getName()).collect(Collectors.toSet()), accesstoken,refreshToken);
+
 
 
     }

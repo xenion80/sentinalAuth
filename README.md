@@ -12,7 +12,7 @@ This project provides secure user registration, login, role-based authorization,
 * Password Hashing using BCrypt
 * JWT Access Token Authentication
 * Refresh Token Support
-* Role-Based Authorization (`ROLE_USER`, `ROLE_ADMIN`)
+* Role-Based Authorization (`ROLE_USER`, `ROLE_ADMIN`,`ROLE_CREATOR`)
 * Stateless Authentication using Spring Security
 * MySQL Database Integration
 * Environment Variable Based Secret Key Configuration
@@ -115,7 +115,13 @@ Authorization: Bearer <access_token>
 Create environment variable:
 
 ```bash
+
 export JWT_SECRET=your_super_secret_key_here
+```
+
+```bash
+
+export DB_PASSWORD=your_DB_password_here
 ```
 
 Application uses:
@@ -124,6 +130,7 @@ Application uses:
 jwt:
   secretKey: ${JWT_SECRET}
 ```
+
 
 ---
 
@@ -136,7 +143,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/Auth_service
     username: your_username
-    password: your_password
+    password: ${DB_PASSWORD}
 ```
 
 ---

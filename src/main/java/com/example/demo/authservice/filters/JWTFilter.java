@@ -67,7 +67,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             }
         } catch (Exception e) {
-            logger.error("Error occured at {}", e);
+            logger.error("Error occured at ->{}", e);
 
         }
         filterChain.doFilter(request,response);

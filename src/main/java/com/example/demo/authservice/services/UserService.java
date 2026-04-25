@@ -60,4 +60,8 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found"));
     }
+
+    public User getUserById(Long userid) {
+        return userRepository.findById(userid).orElseThrow(()->new BadCredentialsException("user Id not found"));
+    }
 }
