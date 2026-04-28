@@ -27,7 +27,7 @@ public class WebSecurityConfig {
                 .sessionManagement(sessionconfig->sessionconfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth->auth
-                                .requestMatchers("/auth/**","/auth/register","/auth/login").permitAll()
+                                .requestMatchers("/auth/**","/auth/register","/auth/login","/","/swagger-ui/**","/v3/api-docs/**","/error").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

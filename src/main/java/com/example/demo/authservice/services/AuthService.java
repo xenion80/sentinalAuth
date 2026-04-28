@@ -76,7 +76,10 @@ public class AuthService {
     }
 
     public LoginResponse refreshToken(String refreshToken) {
+        RefreshToken token=refreshTokenRepository.findByToken(refreshToken).orElseThrow(()->new RuntimeException("Invalid token"));
         Long userid= jwtAuthService.extractUserId(refreshToken);
+        if (token.getRevoked())throw new RuntimeException("the refreshtoken is revoked");
+        if (jwtAuthService.validToken(refreshToken))throw new RuntimeException("the token is not valid") ;
         User user=userService.getUserById(userid);
         String accesstoken=jwtAuthService.generateRefreshToken(user);
         return new LoginResponse(user.getId(),user.getName(),user.getEmail(),user.getRoles().stream().map(roleEntity -> roleEntity.getName()).collect(Collectors.toSet()), accesstoken,refreshToken);

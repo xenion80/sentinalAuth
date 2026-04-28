@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 
 @RestController
@@ -28,12 +29,12 @@ public class Authcontroller {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> signUp(@RequestBody SignUpInputModel signUpInputModel){
+    public ResponseEntity<UserResponse> signUp(@Valid @RequestBody SignUpInputModel signUpInputModel){
         UserResponse userDTO= userService.signup(signUpInputModel);
         return ResponseEntity.ok(userDTO);
     }
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse httpServletResponse){
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse httpServletResponse){
 
         LoginResponse loginResponse=authService.login(loginRequest);
 
