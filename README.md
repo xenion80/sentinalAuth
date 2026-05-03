@@ -1,4 +1,4 @@
-# 🔐 Auth Service — Spring Boot JWT Authentication API
+# 🔐 sentinalAuth — Spring Boot JWT Authentication API
 
 A backend authentication and authorization service built with **Spring Boot**, **Spring Security**, and **JWT**, implementing **stateless authentication with refresh token support**.
 
