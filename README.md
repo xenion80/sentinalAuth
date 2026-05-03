@@ -1,186 +1,157 @@
-# Auth Service - Spring Boot JWT Authentication API
+# 🔐 Auth Service — Spring Boot JWT Authentication API
 
-A backend authentication service built with **Spring Boot**, **Spring Security**, **JWT**, and **MySQL**.
-This project provides secure user registration, login, role-based authorization, access tokens, and refresh token support.
-
----
-
-## Features
-
-* User Registration / Signup
-* Secure Login with Email + Password
-* Password Hashing using BCrypt
-* JWT Access Token Authentication
-* Refresh Token Support
-* Role-Based Authorization (`ROLE_USER`, `ROLE_ADMIN`,`ROLE_CREATOR`)
-* Stateless Authentication using Spring Security
-* MySQL Database Integration
-* Environment Variable Based Secret Key Configuration
+A backend authentication and authorization service built with **Spring Boot**, **Spring Security**, and **JWT**, implementing **stateless authentication with refresh token support**.
 
 ---
 
-## Tech Stack
+## 🚀 Overview
 
-* Java
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-* Hibernate
-* MySQL
-* JWT (JJWT)
-* Lombok
-* ModelMapper
-* Maven
+This project provides a complete authentication system with:
+
+* Secure login & signup
+* JWT-based access control
+* Refresh token mechanism
+* Logout with token invalidation
+* Role-based authorization
 
 ---
 
-## Project Structure
+## ✨ Features
 
-```text
-src/main/java/com/example/demo/authservice
-
-├── Config
-├── controllers
-├── Dtos
-│   ├── requests
-│   └── responses
-├── Entities
-├── exceptions
-├── filters
-├── repositories
-└── services
-```
+* User Registration & Login
+* BCrypt password hashing
+* JWT Access Token (short-lived)
+* Refresh Token (long-lived, stored in DB)
+* Logout with refresh token invalidation
+* Role-Based Authorization (`ROLE_USER`, `ROLE_ADMIN`, `ROLE_CREATOR`)
+* Stateless authentication using Spring Security
 
 ---
 
-## Authentication Flow
+## 🔐 Authentication Flow
 
-### Signup
+### 1. Signup
 
-```text
+```http
 POST /auth/register
 ```
 
-Creates a new user with encrypted password and assigns default role.
-
-### Login
-
 ```text
+Validate → Check email → Hash password → Assign role → Save user
+```
+
+---
+
+### 2. Login
+
+```http
 POST /auth/login
 ```
 
-Validates credentials and returns:
+```text
+Verify credentials → Generate tokens → Save refresh token → Return response
+```
+
+Returns:
 
 * Access Token
-* Refresh Token (HttpOnly Cookie)
+* Refresh Token
 
-### Protected Routes
+---
 
-Use header:
+### 3. Access Protected Routes
 
-```text
+```http
+GET /api/users/me
 Authorization: Bearer <access_token>
 ```
 
----
-
-## Example Login Request
-
-```json
-{
-  "email": "user@gmail.com",
-  "password": "password123"
-}
+```text
+Request → JWT Filter → Validate token → Load user → Set SecurityContext → Controller
 ```
 
 ---
 
-## Example Login Response
+### 4. Refresh Token
 
-```json
-{
-  "id": 1,
-  "name": "Karan",
-  "email": "user@gmail.com",
-  "roles": ["ROLE_USER"],
-  "accessToken": "jwt_token_here",
-  "refreshToken": "jwt_refresh-token_here"
-}
+```http
+POST /auth/refresh
+```
+
+```text
+Validate refresh token (DB + expiry + revoked)
+→ Generate new access token
+→ Return response
 ```
 
 ---
 
-## Environment Variables
+### 5. Logout
 
-Create environment variable:
-
-```bash
-
-export JWT_SECRET=your_super_secret_key_here
+```http
+POST /auth/logout
 ```
 
-```bash
-
-export DB_PASSWORD=your_DB_password_here
+```text
+Receive refresh token
+↓
+Invalidate token in backend (revoked = true OR delete)
+↓
+Clear refresh token cookie (maxAge = 0)
+↓
+User session terminated
 ```
 
-Application uses:
+### 🔑 Important Note
 
-```yaml
-jwt:
-  secretKey: ${JWT_SECRET}
+Logout is handled at **both levels**:
+
+* **Client-side** → Refresh token cookie is cleared
+* **Server-side** → Refresh token is invalidated in database
+
+This ensures:
+
+* Logged-out tokens cannot be reused
+* Stolen tokens cannot generate new access tokens
+* Session is securely terminated
+
+---
+
+## 🗄️ Database Design
+
+```text
+users
+roles
+user_roles
+refresh_tokens
 ```
 
+---
+
+## 🔒 Security Highlights
+
+* Passwords hashed using BCrypt
+* JWT signed with secret key
+* Stateless authentication (no sessions)
+* Refresh tokens stored and controlled in DB
+* Logout invalidates refresh tokens
+* Role-based access control via Spring Security
 
 ---
 
-## Database Configuration
+## 📡 API Endpoints
 
-Update `application.yml`
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/Auth_service
-    username: your_username
-    password: ${DB_PASSWORD}
-```
+| Method | Endpoint       | Description                 |
+| ------ | -------------- | --------------------------- |
+| POST   | /auth/register | Register user               |
+| POST   | /auth/login    | Login user                  |
+| POST   | /auth/refresh  | Refresh access token        |
+| POST   | /auth/logout   | Logout (invalidate session) |
+| GET    | /api/users/me  | Get current user (secured)  |
 
 ---
 
-## Security Highlights
-
-* Passwords stored hashed using BCrypt
-* JWT signed using secret key
-* Stateless sessions
-* HttpOnly refresh token cookie
-* Route protection using Spring Security Filter Chain
-
----
-
-## Current Endpoints
-
-| Method | Endpoint       | Description                                    |
-| ------ | -------------- | ---------------------------------------------- |
-| POST   | /auth/register | Register user                                  |
-| POST   | /auth/login    | Login user                                     |
-| POST   | /auth/refresh  | Refresh access token *(planned / in progress)* |
-
----
-
-## Future Improvements
-
-* Logout endpoint
-* Email verification
-* Password reset flow
-* Token revocation blacklist
-* Swagger API docs
-* Docker deployment
-* Unit & Integration tests
-
----
-
-## How To Run
+## ▶️ Running the Project
 
 ```bash
 git clone <your-repo-url>
@@ -190,18 +161,17 @@ mvn spring-boot:run
 
 ---
 
-## Learning Goals of This Project
+## 🧠 Learning Outcomes
 
-This project was built to deeply understand:
-
-* Spring Security internals
 * JWT authentication flow
-* Filter chains
-* Role-based access control
-* Real-world backend architecture
+* Refresh token handling
+* Secure logout implementation
+* Spring Security filter chain
+* Stateless backend design
 
 ---
 
-## Author
+## 👨‍💻 Author
 
-Built by Karan Sardar as a backend portfolio project.
+**Karan Sardar**
+Backend Developer (Spring Boot)
