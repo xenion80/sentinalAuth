@@ -40,6 +40,8 @@ public class User implements UserDetails {
     )
     private Set<RoleEntity> roles;
 
+    private Boolean emailVerified;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()

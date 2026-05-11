@@ -4,10 +4,14 @@ import com.example.demo.authservice.Dtos.requests.LoginRequest;
 import com.example.demo.authservice.Dtos.responses.LoginResponse;
 import com.example.demo.authservice.Entities.RefreshToken;
 import com.example.demo.authservice.Entities.User;
+import com.example.demo.authservice.Entities.VerificationToken;
 import com.example.demo.authservice.repositories.RefreshTokenRepository;
+import com.example.demo.authservice.repositories.UserRepository;
+import com.example.demo.authservice.repositories.VerificationTokenRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +29,9 @@ public class AuthService {
     private final JwtAuthService jwtAuthService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final UserRepository userRepository;
+
 
     public LoginResponse login(LoginRequest loginRequest) {
         Authentication authentication=authenticationManager.authenticate(
@@ -86,5 +93,18 @@ public class AuthService {
 
 
 
+    }
+
+    @Transactional
+    public void verify(String token) {
+        VerificationToken vt=verificationTokenRepository.findByToken(token).orElseThrow(()->new RuntimeException("Invalid toke"));
+        if(vt.getExpiresAt().isBefore(LocalDateTime.now())){
+            throw new RuntimeException("Token Expired");
+        }
+        User user=vt.getUser();
+        user.setEnabled(true);
+        user.setEmailVerified(true);
+        userRepository.save(user);
+        verificationTokenRepository.delete(vt);
     }
 }
