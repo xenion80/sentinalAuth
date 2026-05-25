@@ -5,6 +5,7 @@ import com.example.demo.authservice.Dtos.responses.LoginResponse;
 import com.example.demo.authservice.Entities.RefreshToken;
 import com.example.demo.authservice.Entities.User;
 import com.example.demo.authservice.Entities.VerificationToken;
+import com.example.demo.authservice.exceptions.ResourceNotfoundException;
 import com.example.demo.authservice.repositories.RefreshTokenRepository;
 import com.example.demo.authservice.repositories.UserRepository;
 import com.example.demo.authservice.repositories.VerificationTokenRepository;
@@ -97,10 +98,9 @@ public class AuthService {
 
     @Transactional
     public void verify(String token) {
-        VerificationToken vt=verificationTokenRepository.findByToken(token).orElseThrow(()->new RuntimeException("Invalid toke"));
+        VerificationToken vt=verificationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotfoundException("Invalid verification token"));
         if(vt.getExpiresAt().isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Token Expired");
-        }
+            throw new IllegalArgumentException("Verification token expired");        }
         User user=vt.getUser();
         user.setEnabled(true);
         user.setEmailVerified(true);

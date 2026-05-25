@@ -21,3 +21,6 @@ spring:
       mail.smtp.starttls.enable: true
 jwt:
   secretKey: ${JWT_SECRET}
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}

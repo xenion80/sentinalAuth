@@ -61,9 +61,9 @@ public class Requiredconfig {
 //            }
 //        };
 //    }
-    @Bean
-    public JavaMailSender javaMailSender(){
-        return new JavaMailSenderImpl();
-    }
+//    @Bean
+//    public JavaMailSender javaMailSender(){
+//        return new JavaMailSenderImpl();
+//    }
 
 }

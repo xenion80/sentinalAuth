@@ -9,15 +9,18 @@ import com.example.demo.authservice.exceptions.IdentityAlreadyExistsException;
 import com.example.demo.authservice.Dtos.requests.SignUpInputModel;
 import com.example.demo.authservice.repositories.RoleEntityRepository;
 import com.example.demo.authservice.repositories.UserRepository;
+import com.example.demo.authservice.repositories.VerificationTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -32,12 +35,16 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final RoleEntityRepository roleEntityRepository;
     private final EmailService emailService;
+    private final VerificationTokenRepository verificationTokenRepository;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @Transactional
     public UserResponse signup(SignUpInputModel signUpInputModel) {
         Optional<User> user=userRepository.findByEmail(signUpInputModel.getEmail());
         if(user.isPresent()){
-            throw new IdentityAlreadyExistsException("User with this email alreday exists"+signUpInputModel.getEmail());
+            throw new IdentityAlreadyExistsException("User with this email alreday exists: "+signUpInputModel.getEmail());
         }
         RoleEntity userRole = roleEntityRepository.findByName(Role.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("USER role missing"));
@@ -54,10 +61,13 @@ public class UserService implements UserDetailsService {
         vt.setToken(token);
         vt.setUser(saved);
         vt.setExpiresAt(LocalDateTime.now().plusHours(20));
+        verificationTokenRepository.save(vt);
+        String verifyEmail=buildVerificationUrl(baseUrl,token);
+
         emailService.sendMail(
                 saved.getEmail(),
                 "Verify your email",
-                "Click here: http://localhost:8080/auth/verify-email?token=" + token
+                "Click here: " + verifyEmail
 
         );
 
@@ -67,6 +77,14 @@ public class UserService implements UserDetailsService {
 
 
 
+    }
+    private String buildVerificationUrl(final String baseURL,
+                                       final String token){
+
+        return UriComponentsBuilder.fromUriString(baseURL)
+                .path("/auth/verify-email")
+                .queryParam("token", token)
+                .toUriString();
     }
 
     @Override
