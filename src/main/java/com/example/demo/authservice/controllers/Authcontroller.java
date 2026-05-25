@@ -1,13 +1,12 @@
 package com.example.demo.authservice.controllers;
 
 import com.example.demo.authservice.Dtos.requests.LoginRequest;
+import com.example.demo.authservice.Dtos.requests.forgetPasswordRequest;
 import com.example.demo.authservice.Dtos.responses.LoginResponse;
 import com.example.demo.authservice.Dtos.responses.UserResponse;
 import com.example.demo.authservice.Dtos.requests.SignUpInputModel;
-import com.example.demo.authservice.Entities.User;
-import com.example.demo.authservice.Entities.VerificationToken;
+import com.example.demo.authservice.Entities.ResetPasswordRequest;
 import com.example.demo.authservice.repositories.UserRepository;
-import com.example.demo.authservice.repositories.VerificationTokenRepository;
 import com.example.demo.authservice.services.AuthService;
 import com.example.demo.authservice.services.UserService;
 import jakarta.servlet.http.Cookie;
@@ -15,12 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 
 @RestController
@@ -68,5 +65,16 @@ public class Authcontroller {
         authService.verify(token);
         return ResponseEntity.ok("Email Verified Successfully");
 
+    }
+
+    @PostMapping("/forget-password")
+    public ResponseEntity<String> forgotPassword(@Valid@RequestBody forgetPasswordRequest request){
+        authService.requestPasswordReset(request.getEmail());
+        return ResponseEntity.ok("If an account with that email exists, a reset link has been sent.");
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> reset_password(@RequestBody ResetPasswordRequest request){
+        authService.resetPassword(request.getToken(),request.getNewPassword());
+        return ResponseEntity.ok("Password Reset successfully");
     }
 }
