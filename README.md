@@ -418,7 +418,6 @@ http://localhost:5173
 - Admin dashboard
 - Protected frontend routes
 - Better exception handling
-- OAuth2 Login
 - Profile management
 - Token cleanup scheduler
 - Rate limiting
