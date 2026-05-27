@@ -1,5 +1,6 @@
 package com.example.demo.authservice.advices;
 
+import com.example.demo.authservice.exceptions.IdentityAlreadyExistsException;
 import com.example.demo.authservice.exceptions.ResourceNotfoundException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,16 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiError> handleJwtException(JwtException exception){
+        ApiError error=new ApiError(HttpStatus.UNAUTHORIZED,exception.getMessage());
+        return new ResponseEntity<>(error,HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException exception){
+        ApiError error=new ApiError(HttpStatus.BAD_REQUEST,exception.getMessage());
+        return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(IdentityAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleIdentityAlreadyExistsException(IdentityAlreadyExistsException exception){
         ApiError error=new ApiError(HttpStatus.UNAUTHORIZED,exception.getMessage());
         return new ResponseEntity<>(error,HttpStatus.UNAUTHORIZED);
     }

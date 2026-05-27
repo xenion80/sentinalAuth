@@ -19,6 +19,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@Table(name = "users")
 
 public class User implements UserDetails {
     @Id
@@ -39,6 +40,8 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name ="role_id" )
     )
     private Set<RoleEntity> roles;
+
+    private Boolean emailVerified;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
