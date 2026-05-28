@@ -17,6 +17,11 @@ export default function Home() {
             <Link to="/auth/register">
                 Register
             </Link>
+            <br />
+            <Link to="/auth/forgot-password">
+                Forgot Password
+            </Link>
+
 
         </div>
     );
