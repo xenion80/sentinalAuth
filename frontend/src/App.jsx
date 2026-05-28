@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
+import Home from "./pages/Home";
 
 function App() {
 
@@ -13,6 +14,9 @@ function App() {
         <BrowserRouter>
 
             <Routes>
+                
+                <Route path="/" element={<Home />} />
+
 
                 <Route
                     path="/auth/login"
