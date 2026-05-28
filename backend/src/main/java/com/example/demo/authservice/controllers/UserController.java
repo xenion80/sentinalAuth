@@ -21,8 +21,10 @@ public class UserController {
         User user= (User) authentication.getPrincipal();
         return ResponseEntity.ok(new UserResponse(
                 user.getId(),
-                user.getRoles().stream().map(roleEntity -> roleEntity.getName()).collect(Collectors.toSet()).toString(),
-                user.getEmail()
+                user.getEmail(),
+                user.getName(),
+                user.getRoles().stream().map(roleEntity -> roleEntity.getName()).collect(Collectors.toSet())
+
 
         ));
     }
